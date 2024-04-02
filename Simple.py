@@ -1,5 +1,6 @@
 import random
 import sys
+import time
 from mn_wifi.cli import CLI
 from mininet.log import setLogLevel, info
 from mn_wifi.net import Mininet_wifi
@@ -48,26 +49,34 @@ def simple_file():
     p3 = {'position': '250.0,250,0.0'}
     p4 = {'position': '289.0,31.0,0.0'}
 
-    
     net.mobility(sta1, 'start', time=0, **p1)
     net.mobility(sta2, 'start', time=0, **p2)
     net.mobility(sta1, 'stop', time=25, **p3)
     net.mobility(sta2, 'stop', time=25, **p4)
     net.stopMobility(time=23)
-    print(sta1.wintfs[0].rssi)
+    
+    
+    
+    	
 
     
     info("*** Starting Network ***\n")
     net.build()
     c0.start()
     ap1.start([c0])
+    while True:
+    	print(sta1.wintfs[0].rssi)
+    	time.sleep(1)
+    	if sta1.wintfs[0].rssi == 0:
+    		break
     
     # Start stations
     
     
 
     info("*** Running CLI ***\n")
-    CLI(net)
+    CLI(net,script = "command.txt")
+    
 
     info("*** Stopping Network ***\n")
     net.stop()
