@@ -54,10 +54,8 @@ def simple_file():
     #nodes = net.stations
     #telemetry(nodes = nodes, single = True, data_type = 'rssi')
     
-    result = sta2.cmd('sta2 iw dev sta2-wlan0 link | grep signal | tr -d signal')
-    print(result)
     info("*** Running CLI ***\n")
-    CLI(net)
+    CLI(net,script = "command.txt")
     
 
     
