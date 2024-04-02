@@ -11,7 +11,7 @@ from mn_wifi.vanet import vanet
 from mn_wifi.telemetry import telemetry
 from mn_wifi.sumo.runner import sumo
 
-def simple_file():
+def simple_file(args):
 
     # Create Network
     net = Mininet_wifi(controller=Controller, accessPoint=UserAP, link=wmediumd, wmediumd_mode=interference)
@@ -20,51 +20,64 @@ def simple_file():
     c0 = net.addController('c0')
     info("*** Creating nodes ***\n")
     
-    ##Add hosts
-    
+    ## Add hosts
     h1 = net.addHost('h1', mac='00:00:00:00:00:01', ip='10.0.0.1/8')
     
-    
     # Add Stations
-    sta1 = net.addStation('sta1', mac='00:00:00:00:00:02', ip='10.0.0.2/8',position = '150,100,0')
+    sta1 = net.addStation('sta1', mac='00:00:00:00:00:02', ip='10.0.0.2/8',position = '150,150,0')
     sta2 = net.addStation('sta2', mac='00:00:00:00:00:03', ip='10.0.0.3/8',position = '40,40,0')
 
     # Add AP
-    ap1 = net.addAccessPoint('ap1', ssid='ssid-AP1', mode='g', channel='1', position='50,40,0')
-    ap2 = net.addAccessPoint('ap2',ssid = 'ssid-AP2', mode = 'g', channel = '6', position = '100,40,0')
-    ap3 = net.addAccessPoint('ap3', ssid = 'ssid-AP3',mode = 'g', channel  = '11', position = '150,40,0')
-
+    ap1 = net.addAccessPoint('ap1', ssid='ssid-AP1', mode='a', channel='36', position='50,40,0')
+   
     info("*** Setting Propagation Model ***\n")
-    net.setPropagationModel(model='logDistance', exp=4.5)
-    
+    net.setPropagationModel(model='logDistance', exp=3)
+
     net.configureNodes()
     net.addLink(ap1,h1)
-    net.addLink(ap2,h1)
-    net.addLink(ap3,h1)
 
-    net.plotGraph(max_x=200, max_y=200)
+    if '-p' not in args:
+        net.plotGraph(max_x=300, max_y=300)
 
+    # Set mobility model for stations
+    net.startMobility(time=0, mob_rep=1, reverse=False)
+
+    p1, p2, p3, p4 = {}, {}, {}, {}
+    if '-c' not in args:
+        p1 = {'position': '50.0,50.0,0.0'}
+        p2 = {'position': '40.0,40.0,0.0'}
+        p3 = {'position': '250.0,250,0.0'}
+        p4 = {'position': '289.0,31.0,0.0'}
+
+    while True:
+    
+    	net.mobility(sta1, 'start', time=0, **p1)
+    	net.mobility(sta2, 'start', time=0, **p2)
+    	net.mobility(sta1, 'stop', time=25, **p3)
+    	net.mobility(sta2, 'stop', time=25, **p4)
+    	net.stopMobility(time=23)
+    	print(sta1.wintfs[0].rssi)
+    	time = time+1
+    	if time = 25
+    	
+   	 
+    
+    
     info("*** Starting Network ***\n")
     net.build()
     c0.start()
     ap1.start([c0])
-    ap2.start([c0])
-    ap3.start([c0])
     
-    #nodes = net.stations
-    #telemetry(nodes = nodes, single = True, data_type = 'rssi')
+    # Start stations
     
+    
+
     info("*** Running CLI ***\n")
-    CLI(net,script = "command.txt")
-    
-
-    
-    
-
+    CLI(net)
 
     info("*** Stopping Network ***\n")
     net.stop()
 
 if __name__ == '__main__':
     setLogLevel('info')
-    simple_file()
+    simple_file(sys.argv)
